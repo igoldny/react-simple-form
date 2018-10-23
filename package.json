@@ -1,7 +1,7 @@
 {
-  "name": "react-simple-form",
+  "name": "react-simple-form-component",
   "version": "1.0.0",
-  "description": "react-simple-form React component",
+  "description": "react-simple-form-component React component",
   "main": "lib/index.js",
   "module": "es/index.js",
   "files": [

@@ -7,7 +7,7 @@ this form will handle form state management, validation, post to api.
 ### Installation
 
 ```sh
-npm install --save react-form
+npm install --save react-simple-form-component
 ```
 
 ### Basic Example
@@ -16,7 +16,7 @@ this example will "POST" your form to action url almost like native form dose.
 
 ```js
 import React from 'react';
-import Form from 'react-form';
+import Form from 'react-simple-form-component';
 
 class FormWithAction extends React.Component {
   render() {
@@ -37,7 +37,7 @@ this example will log on form submitted data that has been updated
 
 ```js
 import React from 'react';
-import Form from 'react-form';
+import Form from 'react-simple-form-component';
 
 class FormWithState extends React.Component {
   render() {
