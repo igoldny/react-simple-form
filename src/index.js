@@ -1,71 +1,71 @@
-import React, { Component } from 'react';
-import { isEmpty, pick, isEqual, pickBy } from 'lodash';
+import React, {Component} from 'react'
 
 const validate = {
   required: value => !!value,
   email: value => value && /\S+@\S+\.\S+/.test(value),
-  maxLength: (value, { maxLength }) =>
+  maxLength: (value, {maxLength}) =>
     value && value.length && value.length <= maxLength,
-  min: (value, { min }) => !min || Number(value) >= min,
-  max: (value, { max }) => !max || Number(value) <= max
-};
+  min: (value, {min}) => !min || Number(value) >= min,
+  max: (value, {max}) => !max || Number(value) <= max,
+}
 
 function deepMap(children, fun) {
   return React.Children.map(children, child => {
     if (child && child.props && child.props.children) {
       return React.cloneElement(fun(child), {
-        children: deepMap(child.props.children, fun)
-      });
+        children: deepMap(child.props.children, fun),
+      })
     }
 
-    return fun(child);
-  });
+    return fun(child)
+  })
 }
 
 function isValid(value, validations) {
-  if (isEmpty(validations)) return true;
+  if (!validations || validations === {}) return true
 
   return (
     Object.keys(validations)
       .map(key => validate[key](value, validations))
       .filter(field => !field).length === 0
-  );
+  )
 }
 
 function isFormValid(state = {}, validations = {}) {
-  const formValidations = Object.keys(validations);
+  const formValidations = Object.keys(validations)
   const validatedFields =
     Object.keys(state).filter(
-      key => !!validations[key] && isValid(state[key], validations[key])
-    ) || [];
-  return validatedFields.length >= formValidations.length;
+      key => !!validations[key] && isValid(state[key], validations[key]),
+    ) || []
+  return validatedFields.length >= formValidations.length
 }
 
 function getValidationsOnly(validations) {
-  return pick(validations, ['required', 'email', 'maxLength', 'min', 'max']);
+  return pick(validations, ['required', 'email', 'maxLength', 'min', 'max'])
 }
 
-const compose = (...fns) => (...args) => fns.forEach(fn => fn && fn(...args));
+function pick(object, paths) {
+  const obj = {}
+  for (const path of paths) {
+    if (object[path]) {
+      obj[path] = object[path]
+    }
+  }
+  return obj
+}
+
+const compose = (...fns) => (...args) => fns.forEach(fn => fn && fn(...args))
 
 export default class Form extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.state = props.defaults || {};
-  }
-
-  componentWillReceiveProps({ defaults }) {
-    if (!isEqual(this.props.defaults, defaults)) {
-      this.setState(prevState => ({
-        ...prevState,
-        ...pickBy(defaults, (value, key) => this.props.defaults[key] !== value)
-      }));
-    }
+    this.state = props.defaults || {}
   }
 
   onSubmit(event, type) {
-    event.preventDefault();
-    event.stopPropagation();
+    event.preventDefault()
+    event.stopPropagation()
 
     if (
       this.state &&
@@ -75,45 +75,45 @@ export default class Form extends Component {
       if (this.props.action) {
         fetch(this.props.action, {
           method: 'POST',
-          body: this.state
+          body: this.state,
         }).then(result => {
           if (result.message) {
             this.setState({
               message: result.message,
-              messageType: result.messageType
-            });
+              messageType: result.messageType,
+            })
           }
-          return this.props.onSubmit(result);
-        });
+          return this.props.onSubmit(result)
+        })
       }
-      this.props.onSubmit(this.state);
+      this.props.onSubmit(this.state)
     }
   }
 
   onChange(props, event) {
-    event.stopPropagation && event.stopPropagation();
-    const { target } = event;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
+    event.stopPropagation && event.stopPropagation()
+    const {target} = event
+    const value = target.type === 'checkbox' ? target.checked : target.value
     this.setState({
-      [props.name]: value
-    });
+      [props.name]: value,
+    })
   }
 
-  resetForm = event => {
-    event.preventDefault();
-    this.setState(this.props.defaults);
-    this.props.postReset && this.props.postReset();
-  };
+  resetForm(event) {
+    event.preventDefault()
+    this.setState(this.props.defaults)
+    this.props.postReset && this.props.postReset()
+  }
 
   addChangeHandler(child) {
     if (child && child.props && child.props.name) {
-      const { name } = child.props;
-      const validations = getValidationsOnly(child.props);
-      if (!isEmpty(validations)) {
+      const {name} = child.props
+      const validations = getValidationsOnly(child.props)
+      if (!Object.keys(validations).length) {
         this.validations = {
           ...this.validations,
-          [name]: validations
-        };
+          [name]: validations,
+        }
       }
 
       return React.cloneElement(child, {
@@ -122,17 +122,17 @@ export default class Form extends Component {
         checked: !!this.state[name],
         onChange: compose(
           this.onChange.bind(this, child.props),
-          child.props.onChange
-        )
-      });
+          child.props.onChange,
+        ),
+      })
     }
 
     if (child && child.props && child.props.type === 'submit') {
       return React.cloneElement(child, {
         ...child.props,
         disabled: !(this.state && isFormValid(this.state, this.validations)),
-        onClick: e => this.onSubmit(e, 'submit')
-      });
+        onClick: e => this.onSubmit(e, 'submit'),
+      })
     }
 
     if (
@@ -144,11 +144,11 @@ export default class Form extends Component {
     ) {
       return React.cloneElement(child, {
         ...child.props,
-        onClick: this.resetForm
-      });
+        onClick: this.resetForm,
+      })
     }
 
-    return child;
+    return child
   }
 
   render() {
@@ -164,6 +164,6 @@ export default class Form extends Component {
           </span>
         )}
       </form>
-    );
+    )
   }
 }
