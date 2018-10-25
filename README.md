@@ -1,4 +1,4 @@
-# React Form
+# React Simple Form Component
 
 React Form is a library that helps you with form with ease.
 There is no need to adjust your form or use costume html elements for inputs.
